@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AJAX</title>
+</head>
+<body>
+<div id = "display"></div>
+<button id="allbtn">전체 데이터 가져오기</button>
+<button id="fetchbtn">Fetch API 사용</button>
+bid <input type="text" id="bid"/>
+<button id="getbook">데이터 1개 가져오기</button>
+<!-- ajax로 보낼 때는 id만 필요 -->
+<!-- submit 버튼으로 전송할 때는 나머지 3가지 고려-->
+<!-- action은 처리할 서버의 url__>
+<!-- method는 전송방식으로 생략하면 get-->
+<!-- enctype는 파일이 있는 경우 multipart/form-data를 설정-->
+<form id="bookform">
+    <h3>도서정보 입력</h3>
+    <p>bid<input type="number" name="bid"/></p>
+    <p>제목<input type="text" name="title"/></p>
+    <p>작가<input type="text" name="author"/></p>
+    <p>분류<input type="text" name="category"/></p>
+    <p>페이지 수<input type="number" name="pages"/></p>
+    <p>가격<input type="number" name="price"/></p>
+    <p>출간일<input type="date" name="published_date"/></p>
+    <p>설명<textarea name="description" rows="4" cols="20"></textarea></p>
+    <p><input type="button" value="전송" id="insert" /></p>
+</form>
+</body>
+<script>
+    document.getElementById("fetchbtn").addEventListener("click",
+        (e)=>{
+        alert("클릭")
+            /*
+            //ajax 객체 생성
+            let request=new XMLHttpRequest();
+            //alert(request)
+            //open해서 연결 설정
+            request.open('GET','../example/fbv/books', true);
+            //alert(request)
+            //전송할 데이터 생성
+            //전송
+            request.send('')
+            //전송이 성공했을 때 수행할 동작 작성
+            request.addEventListener("load",(e)=> {
+                let data = JSON.parse(request.responseText);
+                alert(data)
+                })
+                */
+            //fetch API를 이용한 전체 데이터 가져오기
+            fetch('../example/fbv/books', {
+                //옵션 설정
+                //전송방식이나 파라미터 설정
+            })
+                .then((response)=> response.json())
+                .then((data)=> alert(data));
+                .catch((error)=> alert(error));
+            //fetch 함수를 호출하면 서버에게 요청을 전송하고
+            //then에 함수를 설정하면 then에게 전송받은 데이터가 전달됨
+            //전달된 데이터가 json이라면 json메서드를 호출하면
+            //전달한 데이터를 파싱하고 그 결과를 다음 함수에게 전달
+            });
+
+    document.getElementById("insert").addEventListener("click",
+        (e)=> {
+            let bookform=document.getElementById("bookform");
+            let formdata=new FormData(bookform);
+            //ajax 요청 객체
+            let request=new XMLHttpRequest();
+            //요청 생성
+            request.open('POST','../example/fbv/books',true);
+            //FormData를 POST방식으로 전송하기 위한 데이터로 변경
+            request.setRequestHeader("Content-type",
+            "application/x-www-form-urlencoded");
+            let param="";
+            for(let pair of formdata.entries()){
+                param+=pair[0] + '=' +pair[1] + "&";
+            }
+
+            //요청 전송
+            request.send(param);
+            //응답 결과를 처리
+            request.addEventListener("load",(e)=>{
+                alert(request.responseText);
+            })
+        })
+    document.getElementById("getbook").addEventListener("click",
+        (e)=> {
+            let bid = document.getElementById('bid').value; //alert(bid);
+            let request=new XMLHttpRequest();
+            request.open('GET', '../example/fbv/book/'+bid,true);
+            request.send('');
+            request.addEventListener('load',(e)=>{
+                //alert(request.responseText)
+                let data=JSON.parse(request.responseText);
+                let txt="";
+                if('detail' in data) {
+                    //데이터 없을 때 처리
+                    txt="<h3>해당되는 bid가 없습니다.</h3>";
+                }else{
+                    //데이터 있을 때 처리
+                    txt += '<h3>' + data.title + '</h3>';
+                    txt += '<h4>' + data.price + '</h4>';
+                    txt += '<h4>' + data.pages + '</h4>';
+                }
+                document.getElementById('display').innerHTML=txt;
+            })
+        });
+    document.getElementById("allbtn").addEventListener("click",
+        (e)=> {
+        let request=new XMLHttpRequest();
+        //출력하는 함수에 객체 대입하면 toString 메서드 호출
+            //python은 __str__ 메서드 호출
+            //위 메서드를 재정의하면 그 내용이 출력되지만
+            //재정의하지 않으면 기본적으로 설정된 출력됨
+         //alert(request)
+            //요청 생성
+            //http://localhost:8000/example/fbv/books
+            //현재 나는 http://localhost:8000/ajax/
+            request.open('GET','../example/fbv/books',true);
+            //요청 전송
+            request.send('')
+            //응답이 오면 호출
+            request.addEventListener('load',(e)=>{
+                //문자열
+                //alert(request.responseText)
+
+                //문자열을 자바스크립트 데이터로 변환
+                //객체들의 배열
+                let data=JSON.parse(request.responseText);
+                let txt='';
+                for(let item of data) {
+                    txt += '<h3>' + item.title + '</h3>';
+                    txt += '<p>' + item.price + '</p>';
+                    txt += '<p>' + item.pages + '</p>';
+                }
+                document.getElementById('display').innerHTML=
+                    txt;
+            })
+        })
+</script>
+</html>
